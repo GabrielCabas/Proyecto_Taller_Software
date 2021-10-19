@@ -42,8 +42,3 @@ class model:
 
     def get_solutions(self):
         return self.t, self.sol_V, self.sol_Ca, self.sol_Ycac
-
-modelo = model(0.1, -100, 1, 1, 1, -1, 1, t_f=2)
-modelo.solve()
-t, V, Ca_int, Ycac = modelo.get_solutions()
-print(list(Ca_int))
