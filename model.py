@@ -1,44 +1,62 @@
 import numpy as np
 from scipy.integrate import odeint
+
 class model:
-    def __init__(self, Ca_int, V, Ycac, Yhca, stim, d, a, t_0 = 0, t_f = 1):
-        self.Ca_ext = 1000#uM
-        self.Eh = 80.63 #mV
-        self.Ca_int = Ca_int#uM
-        self.Eca =  12.5 * np.log(self.Ca_ext / self.Ca_int) #mV
-        self.t_0 = t_0 #s
-        self.t_f = t_f #s
-        self.t = np.linspace(t_0, t_f, num = (t_f - t_0) * 10**3) #[s]
-        self.V = V #mV
-        self.Ycac = Ycac
-        self.Yhca = Yhca
-        self.stim = stim #uM/s
-        self.d = d
-        self.a = a
+    def __init__(self):
+        #Initial values
+        self.alfa = 2.5 #uM/s
+        self.V = -50 #mV
+        self.Ca_ext = 1000 #uM
+        self.Ca_r = 0.1 #uM
+        self.delta_r = 165.13 #mV
+        self.t = np.linspace(0, 20, 1000) #s
+        self.p_j = 0 #p_j = p*
+        self.p_i = 0
 
-    def __system(self, y, t, Yhca, stim, d, a):
-        euler = np.e #Euler's number
-        Eh = self.Eh
-        Eca = self.Eca
-        stim = 0 #First we try without stimulous
-        V, Ca_int, Ycac = y #Dependient variables
-        #Auxiliar variables
-        k1 = (1 - euler**(-(V + 100)/25))/(1 + euler**(-(V + 100)/25))
-        k2 = (1 - euler**(-(V + 200)/25))/(1 + euler**(-(V + 200)/25))
-        k3 = Yhca * (V - 3*Eh + 2*Eca)
-        k4 = Ycac * (V - Eca)
-        #EDOs system
-        dV = - 5 * (k1 + 0.001 * (2 * k2 + k3 + k4))
-        dCa_int = - 2.5 * (k2 - k3 + 0.5 * k4) + stim
-        dYcac = - d * Ycac + a * (1 - Ycac)
-        return dV, dCa_int, dYcac
+    def __system(self, y, t, k_ca = 0.05, a = 200, d = 1, g_cac_dyn = 0.02, k_kinase = 2, stim = 2):
+        #EDO system
+        if(t <= 0.5):
+            stim = 0
+        if(t > 0.7):
+            stim = 0
+        ca_int, p_j, p_i = y
+        g_cac_0 = ca_int**2 / (self.delta_r * (k_ca**2 + ca_int**2))
+        k1 = ca_int**2 / (k_ca**2 + ca_int**2)
+        k2 = g_cac_0 + p_j * g_cac_dyn
+        k3 = self.V - 12.5 * np.log(self.Ca_ext / ca_int)
+        d_ca_int = stim - self.alfa*(k1 + k2 * k3)
+        k4 = ca_int**4 / (k_kinase**4 + ca_int**4)
+        k5 = 1 - p_j - p_i
+        d_p_j = a * k4 * k5 - d * p_j
+        d_p_i = d * p_j
 
-    def solve(self):
-        y = self.V, self.Ca_int, self.Ycac
-        system = odeint(self.__system, y, self.t, args=(self.Yhca, self.stim, self.d, self.a)).T
-        self.sol_V = system[0]
-        self.sol_Ca = system[1]
-        self.sol_Ycac = system[2]
+        return d_ca_int, d_p_j, d_p_i
+
+    def solve(self, k_ca, a, d, g_cac_dyn, k_kinase, stim):
+        if(not self.__validate_parameters(k_ca, a, d, g_cac_dyn, k_kinase, stim)):
+            return {"status": "failed"}
+        else:
+            y = self.Ca_r, 0, 0
+            system = odeint(self.__system, y, self.t, args=(k_ca, a, d, g_cac_dyn, k_kinase, stim)).T
+            self.sol_Ca_r = system[0]
+            self.sol_p_j = system[1]
+            self.sol_p_i = system[2]
+            return {"status": "success"}
+    def __validate_parameters(self, k_ca, a, d, g_cac_dyn, k_kinase, stim):
+        if(type(k_ca) != float or k_ca < 0.02 or k_ca > 0.2):
+            return False
+        elif(type(a) != int or a < 50 or a > 500):
+            return False
+        elif(type(d) != float or d < 0.5 or d > 5):
+            return False
+        elif(type(g_cac_dyn) != float or g_cac_dyn < 0.01 or g_cac_dyn > 0.05):
+            return False
+        elif(type(k_kinase) != float or k_kinase < 0.5 or k_kinase > 5):
+            return False
+        elif(type(stim) != float or stim < 0.5 or stim > 5):
+            return False
+        else:
+            return True
 
     def get_solutions(self):
-        return self.t, self.sol_V, self.sol_Ca, self.sol_Ycac
+        return self.t, self.sol_Ca_r, self.sol_p_j
