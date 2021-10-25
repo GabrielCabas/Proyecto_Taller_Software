@@ -34,7 +34,7 @@ class model:
 
     def solve(self, k_ca, a, d, g_cac_dyn, k_kinase, stim):
         if(not self.__validate_parameters(k_ca, a, d, g_cac_dyn, k_kinase, stim)):
-            return {"status": "failed"}
+            return {"status": "success"}
         else:
             y = self.Ca_r, 0, 0
             system = odeint(self.__system, y, self.t, args=(k_ca, a, d, g_cac_dyn, k_kinase, stim)).T
@@ -57,6 +57,5 @@ class model:
             return False
         else:
             return True
-
     def get_solutions(self):
         return self.t, self.sol_Ca_r, self.sol_p_j
