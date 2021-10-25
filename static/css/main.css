@@ -1,0 +1,60 @@
+/* Background */
+body {
+	background: linear-gradient(-45deg, #5262ee79, #50e73c79);
+	background-size: 400% 400%;
+	animation: gradient 60s ease infinite;
+	height: 100vh;
+    align-items: center;
+}
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+.formulario{
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.w-15{
+    width: 15%;
+}
+.w-85{
+    width: 85%;
+}
+label{
+    text-align: left;
+}
+
+/*Configure popup*/
+.mfp-fade.mfp-bg {
+    opacity: 0;
+    -webkit-transition: all 0.15s ease-out;
+    -moz-transition: all 0.15s ease-out;
+    transition: all 0.15s ease-out;
+  }
+  .mfp-fade.mfp-bg.mfp-ready {
+    opacity: 0.8;
+  }
+  .mfp-fade.mfp-bg.mfp-removing {
+    opacity: 0;
+  }
+  .mfp-fade.mfp-wrap .mfp-content {
+    opacity: 0;
+  
+    -webkit-transition: all 0.15s ease-out;
+    -moz-transition: all 0.15s ease-out;
+    transition: all 0.15s ease-out;
+  }
+  .mfp-fade.mfp-wrap.mfp-ready .mfp-content {
+    opacity: 1;
+  }
+  .mfp-fade.mfp-wrap.mfp-removing .mfp-content {
+    opacity: 0;
+  }
