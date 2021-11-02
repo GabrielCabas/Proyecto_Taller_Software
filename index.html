@@ -16,7 +16,7 @@
         integrity="sha512-n/4gHW3atM3QqRcbCn6ewmpxcLAHGaDjpEBu4xZd47N0W2oQ+6q7oc3PXstrJYXcbNU1OHdQ1T7pAP+gi5Yu8g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Plotly -->
-    <script src="https://cdn.plot.ly/plotly-1.34.0.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
     <!-- CSS -->
     <link rel='stylesheet' type='text/css' media='screen' href='static/css/main.css'>
     <!-- Font-awesome -->
@@ -30,6 +30,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css"
         integrity="sha512-+EoPw+Fiwh6eSeRK7zwIKG2MA8i3rV/DGa3tdttQGgWyatG/SkncT53KHQaS5Jh9MNOT3dmFL0FjTY08And/Cw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+        </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/bootstrap-slider.min.js"
+        integrity="sha512-f0VlzJbcEB6KiW8ZVtL+5HWPDyW1+nJEjguZ5IVnSQkvZbwBt2RfCBY0CBO1PsMAqxxrG4Di6TfsCPP3ZRwKpA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.css"
+        integrity="sha512-SZgE3m1he0aEF3tIxxnz/3mXu/u/wlMNxQSnE0Cni9j/O8Gs+TjM9tm1NX34nRQ7GiLwUEzwuE3Wv2FLz2667w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <body>
@@ -37,32 +48,92 @@
         <div class="container-md rounded border border-dark formulario h-50 p-4 bg-light">
             <h4>Parameters</h4>
             <div class="d-flex flex-row">
-                <label for="K_ca" class="form-label w-15">Kca = <span id="label_Kca"></span> uM</label>
-                <input type="range" class="form-range w-85" min="0.02" max="0.2" step="0.01" id="K_ca" name="K_ca">
+                <label for="K_ca" class="form-label w-25">\(K_{ca}\) = <span id="label_Kca"></span> \(\mu M\)</label>
+                <input id="K_ca" type="text" />
             </div>
             <div class="d-flex flex-row">
-                <label for="a" class="form-label w-15">a = <span id="label_a"></span> s-1</label>
-                <input type="range" class="form-range w-85" min="50" max="500" step="1" id="a" name="a">
+                <label for="a" class="form-label w-25">a = <span id="label_a"></span> \(s^{-1}\)</label>
+                <input id="a" type="text" />
             </div>
             <div class="d-flex flex-row">
-                <label for="d" class="form-label w-15">d = <span id="label_d"></span> s-1</label>
-                <input type="range" class="form-range w-85" min="0.5" max="5" step="0.1" id="d" name="d">
+                <label for="d" class="form-label w-25">d = <span id="label_d"></span> \(s^{-1}\)</label>
+                <input id="d" type="text" />
             </div>
             <div class="d-flex flex-row">
-                <label for="g_cac_dyn" class="form-label w-15">g cac dyn = <span id="label_g_cac_dyn"></span> mV-1</label>
-                <input type="range" class="form-range w-85" min="0.01" max="0.05" step="0.001" id="g_cac_dyn" name="g_cac_dyn">
+                <label for="g_cac_dyn" class="form-label w-25">\(g_{cac,dyn}\) = <span id="label_g_cac_dyn"></span>
+                    \(mV^{-1}\)</label>
+                <input id="g_cac_dyn" type="text" />
             </div>
             <div class="d-flex flex-row">
-                <label for="K_kinase" class="form-label w-15">Kkinase = <span id="label_Kkinase"></span> uM</label>
-                <input type="range" class="form-range w-85" min="0.5" max="5" step="0.01" id="Kkinase" name="Kkinase">
+                <label for="K_kinase" class="form-label w-25">\(K_{kinase}\) = <span id="label_Kkinase"></span> \(\mu
+                    M\)</label>
+                <input id="Kkinase" type="text" />
             </div>
             <div class="d-flex flex-row">
-                <label for="stim" class="form-label w-15">stim = <span id="label_stim"></span> uM/s</label>
-                <input type="range" class="form-range w-85" min="0.5" max="5" step="0.01" id="stim" name="stim">
+                <label for="stim" class="form-label w-25">stim value = <span id="label_stim"></span> \(\mu M \over
+                    s\)</label>
+                <input id="stim" type="text" />
+            </div>
+            <div class="d-flex flex-row">
+                <label for="stim" class="form-label w-25">stim time = <span id="label_stim_range"></span> \(ms\)</label>
+                <input id="stim_slider" type="text" />
+            </div>
+            <div class="d-flex flex-row">
+                <label for="t" class="form-label w-25">\(t_{f}\) = <span id="label_t"></span> \(s\)</label>
+                <input id="t" type="text" />
+            </div>
+            <div class="d-flex flex-row-reverse">
+                <button type="button" id="parameters_button" class="btn btn-primary m-2"> <span id="label_button_parameters">Show fixed parameters</button>
+            </div>
+            <div id="fixed_parameters">
+                <div class="d-flex flex-row form-label w-25">
+                    \(\alpha = 2.5 \frac{\mu M}{s}\)
+                </div>
+                <div class="d-flex flex-row form-label w-25">
+                    \(V = - 50 mV\)
+                </div>
+                <div class="d-flex flex-row form-label w-25">
+                    \( [Ca^{2+}]_{ext} = 1000 \mu M\)
+                </div>
+                <div class="d-flex flex-row form-label w-25">
+                    \( [Ca^{2+}]_{cys} (t = 0) = 0.1 \mu M\)
+                </div>
+                <div class="d-flex flex-row form-label w-25">
+                    \(\Delta_{r} = 165.13 mV\)
+                </div>
+                <div class="d-flex flex-row form-label w-25">
+                    \(p^*(t=0) = 0\)
+                </div>
+                <div class="d-flex flex-row form-label w-25">
+                    \(p_i(t=0) = 0\)
+                </div>
+            </div>
+            <div class="d-flex flex-row-reverse">
+                <button type="button" id="info_button" class="btn btn-primary m-2"> <span id="label_button">Show </span>\(f(t)\) </button>
+            </div>
+            <div id="info">
+                <div class="d-flex flex-row">
+                    <div class="w-100">
+                        <h4>ODE system</h4>
+                        \(g_{cac,0} = \frac{1}{\Delta_r} \frac{[Ca^{2+}]_{cyt}^{2}}{K_{Ca}^2 + [Ca^{2+}]_{cyt}^{2}} \)
+                        <br>
+                        \( \frac{d[Ca^{2}]_{cyt}}{dt} = stim - \alpha [\frac{[Ca^{2+}]_{cyt}^{2}}{K_{Ca}^2 +
+                        [Ca^{2+}]_{cyt}^{2}} + (g_{cac,0} + p^* g_{cac,dyn}) (V - 12.5 mV \; ln
+                        \frac{[Ca^{2+}]_{ext}}{[Ca^{2+}]_{cyt}}) ]\)
+                        <br>
+                        \(\frac{dp^*}{dt} = a \frac{[Ca^{2+}]^4_{cyt}}{K^4_{kinase} + [Ca^{2+}]_{cyt}^4} (1 - p^* - p_i)
+                        - d
+                        \; p^* \)
+                        <br>
+                        \(\frac{dp_i}{dt} = d \; p^* \)
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="container-md w-85 mb-2" id='plot'></div>
+    <div class="container-md w-80 mb-2" id='plot'></div>
+    <div class="container-md w-80 mb-2" id='plot2'></div>
 </body>
 <script src='static/js/main.js'></script>
+
 </html>

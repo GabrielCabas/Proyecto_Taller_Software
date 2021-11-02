@@ -9,15 +9,12 @@ class model:
         self.Ca_ext = 1000 #uM
         self.Ca_r = 0.1 #uM
         self.delta_r = 165.13 #mV
-        self.t = np.linspace(0, 20, 1000) #s
         self.p_j = 0 #p_j = p*
         self.p_i = 0
 
-    def __system(self, y, t, k_ca = 0.05, a = 200, d = 1, g_cac_dyn = 0.02, k_kinase = 2, stim = 2):
+    def __system(self, y, t, k_ca = 0.05, a = 200, d = 1, g_cac_dyn = 0.02, k_kinase = 2, stim = 2, stim_t1 = 500, stim_t2 = 700):
         #EDO system
-        if(t <= 0.5):
-            stim = 0
-        if(t > 0.7):
+        if(t <= stim_t1 or t < stim_t2):
             stim = 0
         ca_int, p_j, p_i = y
         g_cac_0 = ca_int**2 / (self.delta_r * (k_ca**2 + ca_int**2))
@@ -32,17 +29,18 @@ class model:
 
         return d_ca_int, d_p_j, d_p_i
 
-    def solve(self, k_ca, a, d, g_cac_dyn, k_kinase, stim):
-        if(not self.__validate_parameters(k_ca, a, d, g_cac_dyn, k_kinase, stim)):
+    def solve(self, k_ca, a, d, g_cac_dyn, k_kinase, stim, stim_t1, stim_t2, t):
+        self.t = np.linspace(0, t, 1000) #s
+        if(not self.__validate_parameters(k_ca, a, d, g_cac_dyn, k_kinase, stim, stim_t1, stim_t2)):
             return {"status": "success"}
         else:
             y = self.Ca_r, 0, 0
-            system = odeint(self.__system, y, self.t, args=(k_ca, a, d, g_cac_dyn, k_kinase, stim)).T
+            system = odeint(self.__system, y, self.t, args=(k_ca, a, d, g_cac_dyn, k_kinase, stim, stim_t1, stim_t2)).T
             self.sol_Ca_r = system[0]
             self.sol_p_j = system[1]
             self.sol_p_i = system[2]
             return {"status": "success"}
-    def __validate_parameters(self, k_ca, a, d, g_cac_dyn, k_kinase, stim):
+    def __validate_parameters(self, k_ca, a, d, g_cac_dyn, k_kinase, stim, stim_t1, stim_t2):
         if(type(k_ca) != float or k_ca < 0.02 or k_ca > 0.2):
             return False
         elif(type(a) != int or a < 50 or a > 500):
@@ -55,7 +53,12 @@ class model:
             return False
         elif(type(stim) != float or stim < 0.5 or stim > 5):
             return False
+        elif(type(stim_t1) != float or stim_t1 < 0.05 or stim_t1 > 1):
+            return False
+        elif(type(stim_t2) != float or stim_t2 < 0.05 or stim_t2 > 1):
+            return False
         else:
             return True
+
     def get_solutions(self):
         return self.t, self.sol_Ca_r, self.sol_p_j
