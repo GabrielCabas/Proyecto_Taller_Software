@@ -1,7 +1,8 @@
 from model import model
 from matplotlib import pyplot as plt
 modelo = model()
-status = modelo.solve(k_ca = 0.05, a = 200, d = 1, g_cac_dyn = 0.02, k_kinase = 2, stim = 2)
+# stim, stim_t1, stim_t2, tf
+status = modelo.solve(k_ca = 0.05, a = 200, d = 1, k_kinase = 2, stim = 2, stim_t1=0.5, stim_t2=0.7, tf = 10)
 if(status["status"] == "failed"):
     print("Bad parameters")
 else:

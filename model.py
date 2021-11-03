@@ -1,45 +1,50 @@
 import numpy as np
 from scipy.integrate import odeint
-
 class model:
     def __init__(self):
         #Initial values
         self.alfa = 2.5 #uM/s
         self.V = -50 #mV
         self.Ca_ext = 1000 #uM
-        self.Ca_r = 0.1 #uM
+        self.Ca_0 = 0.1 #uM
         self.delta_r = 165.13 #mV
-        self.p_j = 0 #p_j = p*
-        self.p_i = 0
+        self.pI = 0
+        self.pO = 0
+        self.scale = 0.02
+        self.g_Co = 0.004844689705
 
-    def __system(self, y, t, k_ca = 0.05, a = 200, d = 1, g_cac_dyn = 0.02, k_kinase = 2, stim = 2, stim_t1 = 500, stim_t2 = 700):
-        #EDO system
-        if(t <= stim_t1 or t < stim_t2):
-            stim = 0
-        ca_int, p_j, p_i = y
-        g_cac_0 = ca_int**2 / (self.delta_r * (k_ca**2 + ca_int**2))
-        k1 = ca_int**2 / (k_ca**2 + ca_int**2)
-        k2 = g_cac_0 + p_j * g_cac_dyn
-        k3 = self.V - 12.5 * np.log(self.Ca_ext / ca_int)
-        d_ca_int = stim - self.alfa*(k1 + k2 * k3)
-        k4 = ca_int**4 / (k_kinase**4 + ca_int**4)
-        k5 = 1 - p_j - p_i
-        d_p_j = a * k4 * k5 - d * p_j
-        d_p_i = d * p_j
+    def __system(self, y, t, k_ca, a, d, k_kinase, stim):
+        ca_int, pO, pI = y
+        g_C = self.g_Co + pO * self.scale
+        d_Ca_int = stim - self.alfa * (ca_int**2 / (ca_int**2 + k_ca**2) + g_C*(self.V - 12.5* np.log(self.Ca_ext / ca_int)))
+        dPO = a * ca_int**4 / (k_kinase**4 + ca_int**4) * (1 - pO - pI) - d * pO
+        dPI = d * pO
+        return d_Ca_int, dPO, dPI
 
-        return d_ca_int, d_p_j, d_p_i
+    def solve(self, k_ca, a, d, k_kinase, stim, stim_t1, stim_t2, tf):
 
-    def solve(self, k_ca, a, d, g_cac_dyn, k_kinase, stim, stim_t1, stim_t2, t):
-        self.t = np.linspace(0, t, 1000) #s
-        if(not self.__validate_parameters(k_ca, a, d, g_cac_dyn, k_kinase, stim, stim_t1, stim_t2)):
-            return {"status": "success"}
-        else:
-            y = self.Ca_r, 0, 0
-            system = odeint(self.__system, y, self.t, args=(k_ca, a, d, g_cac_dyn, k_kinase, stim, stim_t1, stim_t2)).T
-            self.sol_Ca_r = system[0]
-            self.sol_p_j = system[1]
-            self.sol_p_i = system[2]
-            return {"status": "success"}
+        t1 = np.linspace(start = 0, stop = stim_t1, num = 1000) #s
+        y = self.Ca_0, self.pO, self.pI
+        system = odeint(self.__system, y, t1, args=(k_ca, a, d, k_kinase, 0)).T
+        self.sol_Ca_r = system[0]
+        self.sol_pO = system[1]
+        self.sol_pI = system[2]
+        y = self.sol_Ca_r[-1], self.sol_pO[-1], self.sol_pI[-1]
+        t2 = np.linspace(start = stim_t1, stop = stim_t2, num = 1000)
+        system = odeint(self.__system, y, t2, args=(k_ca, a, d, k_kinase, stim)).T
+        self.sol_Ca_r = np.concatenate((self.sol_Ca_r,system[0]), axis=None)
+        self.sol_pO = np.concatenate((self.sol_pO,system[1]), axis=None)
+        self.sol_pI = np.concatenate((self.sol_pI,system[2]), axis=None)
+        y = self.sol_Ca_r[-1], self.sol_pO[-1], self.sol_pI[-1]
+        t3 = np.linspace(start = stim_t2, stop = tf, num = 1000)
+        system = odeint(self.__system, y, t3, args=(k_ca, a, d, k_kinase, 0)).T
+        self.sol_Ca_r = np.concatenate((self.sol_Ca_r,system[0]), axis=None)
+        self.sol_pO = np.concatenate((self.sol_pO,system[1]), axis=None)
+        self.sol_pI = np.concatenate((self.sol_pI,system[2]), axis=None)
+
+        self.t = np.concatenate((t1,t2, t3), axis=None)
+        return {"status": "success"}
+
     def __validate_parameters(self, k_ca, a, d, g_cac_dyn, k_kinase, stim, stim_t1, stim_t2):
         if(type(k_ca) != float or k_ca < 0.02 or k_ca > 0.2):
             return False
@@ -59,6 +64,5 @@ class model:
             return False
         else:
             return True
-
     def get_solutions(self):
-        return self.t, self.sol_Ca_r, self.sol_p_j
+        return self.t, self.sol_Ca_r, self.sol_pO

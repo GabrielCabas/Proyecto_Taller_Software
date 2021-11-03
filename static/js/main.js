@@ -2,12 +2,11 @@ actualize_labels = () => {
     $("#label_Kca").text(K_ca.val())
     $("#label_a").text(a.val())
     $("#label_d").text(d.val())
-    $("#label_g_cac_dyn").text(g_cac_dyn.val())
+    //$("#label_g_cac_dyn").text(g_cac_dyn.val())
     $("#label_Kkinase").text(Kkinase.val())
     $("#label_stim").text(stim.val())
     $("#label_stim_range").text(stim_slider.val().replace(",", " - "))
     $("#label_t").text(t.val())
-
 }
 
 create_plot = () => {
@@ -18,7 +17,7 @@ create_plot = () => {
             k_ca: K_ca.val(),
             a: a.val(),
             d: d.val(),
-            g_cac_dyn: g_cac_dyn.val(),
+            /* g_cac_dyn: g_cac_dyn.val(), */
             k_kinase: Kkinase.val(),
             stim: stim.val(),
             stim_range: stim_slider.val(),
@@ -27,18 +26,16 @@ create_plot = () => {
     }).done((data) => {
         let layout1 = {
             autosize: true,
-            height: 600,
-            width: 1000,
-            title: '$Calcium\\;cytosol\\;concentration\\;vs\\;time$',
+            height: 500,
+            width: 1100,
             yaxis: { title: '$[Ca^{+2}]_{cyt}\\;(\\mu M)$' },
             xaxis: { title: '$time\\;(s)$'}
         };
         let layout2 = {
             autosize: true,
-            height: 600,
-            width: 1000,
-            title: '$p^*\\;value\\;vs\\;time$',
-            yaxis: { title: '$p^*$' },
+            height: 500,
+            width: 1100, 
+            yaxis: { title: '$P(Open)$' },
             xaxis: { title: '$time\\;(s)$'}
         };
         let config = {
@@ -51,7 +48,7 @@ create_plot = () => {
                 y: data.values.Ca_r,
                 type: 'line',
                 name: "Ca int",
-                hovertemplate: `Calcium concentration: %{y:.2f} uM <br>Time: %{x:.3f} s <extra></extra>`,
+                hovertemplate: `Calcium concentration: %{y:.4f} uM <br>Time: %{x:.3f} s <extra></extra>`,
             }
         }
         var trace2 = {};
@@ -60,8 +57,8 @@ create_plot = () => {
                 x: data.values.t_f,
                 y: data.values.p_j,
                 type: 'line',
-                name: "p*",
-                hovertemplate: `p*: %{y:.2f} <br>Time: %{x:.3f} s <extra></extra>`
+                name: "Open Probability",
+                hovertemplate: `Probability: %{y:.4f} <br>Time: %{x:.3f} s <extra></extra>`
             }
         }
         Plotly.react('plot', {
@@ -124,13 +121,13 @@ var d = $("#d").slider({
     step: 0.1,
     value: 1
 })
-var g_cac_dyn = $("#g_cac_dyn").slider({
+/* var g_cac_dyn = $("#g_cac_dyn").slider({
     class: "slider",
     min: 0.01,
     max: 0.05,
     step: 0.001,
     value: 0.02
-})
+}) */
 var Kkinase = $("#Kkinase").slider({
     class: "slider",
     min: 0.5,
@@ -155,8 +152,8 @@ var stim_slider = $("#stim_slider").slider({
 })
 var t = $("#t").slider({
     class: "slider_range",
-    min: 5,
-    max: 30,
+    min: 1,
+    max: 15,
     step: 1,
     value: 10
 })
@@ -170,3 +167,14 @@ form.on("mouseup", () => {
     create_plot()
 })
 document.addEventListener("contextmenu", function(e) {e.preventDefault();});
+$("#inicial").on("click", () => {
+    K_ca.slider("setValue", 0.05)
+    a.slider("setValue",200)
+    d.slider("setValue", 1)
+    Kkinase.slider("setValue", 2)
+    stim.slider("setValue",2)
+    stim_slider.slider("setValue",[500,700])
+    t.slider("setValue",10)
+    actualize_labels()
+    create_plot()
+})
