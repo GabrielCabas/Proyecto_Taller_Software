@@ -2,7 +2,6 @@ actualize_labels = () => {
     $("#label_Kca").text(K_ca.val())
     $("#label_a").text(a.val())
     $("#label_d").text(d.val())
-    //$("#label_g_cac_dyn").text(g_cac_dyn.val())
     $("#label_Kkinase").text(Kkinase.val())
     $("#label_stim").text(stim.val())
     $("#label_stim_range").text(stim_slider.val().replace(",", " - "))
@@ -17,7 +16,6 @@ create_plot = () => {
             k_ca: K_ca.val(),
             a: a.val(),
             d: d.val(),
-            /* g_cac_dyn: g_cac_dyn.val(), */
             k_kinase: Kkinase.val(),
             stim: stim.val(),
             stim_range: stim_slider.val(),
@@ -27,19 +25,19 @@ create_plot = () => {
         let layout1 = {
             autosize: true,
             height: 500,
-            width: 1100,
+            width: 1050,
             yaxis: { title: '$[Ca^{+2}]_{cyt}\\;(\\mu M)$' },
-            xaxis: { title: '$time\\;(s)$'}
+            xaxis: { title: '$time\\;(s)$' }
         };
         let layout2 = {
             autosize: true,
             height: 500,
-            width: 1100, 
+            width: 1050,
             yaxis: { title: '$P(Open)$' },
-            xaxis: { title: '$time\\;(s)$'}
+            xaxis: { title: '$time\\;(s)$' }
         };
         let config = {
-            displayModeBar: false,
+            //displayModeBar: false,
         };
         var trace1 = {};
         if (data.state == "success") {
@@ -74,23 +72,23 @@ create_plot = () => {
     })
 }
 
-$("#info_button").on("click", ()=>{
-    if($("#info").css("display") == "none"){
+$("#info_button").on("click", () => {
+    if ($("#info").css("display") == "none") {
         $("#info").show()
         $("#label_button").text("Hide ")
     }
-    else{
+    else {
         $("#info").hide()
         $("#label_button").text("Show ")
     }
 })
 
-$("#parameters_button").on("click", ()=>{
-    if($("#fixed_parameters").css("display") == "none"){
+$("#parameters_button").on("click", () => {
+    if ($("#fixed_parameters").css("display") == "none") {
         $("#fixed_parameters").show()
         $("#label_button_parameters").text("Hide fixed parameters")
     }
-    else{
+    else {
         $("#fixed_parameters").hide()
         $("#label_button_parameters").text("Show fixed parameters")
     }
@@ -103,7 +101,7 @@ var form = $(".formulario")
 var K_ca = $("#K_ca").slider({
     id: "slider",
     min: 0.02,
-    max: 0.2, 
+    max: 0.2,
     step: 0.01,
     value: 0.05
 })
@@ -121,13 +119,6 @@ var d = $("#d").slider({
     step: 0.1,
     value: 1
 })
-/* var g_cac_dyn = $("#g_cac_dyn").slider({
-    class: "slider",
-    min: 0.01,
-    max: 0.05,
-    step: 0.001,
-    value: 0.02
-}) */
 var Kkinase = $("#Kkinase").slider({
     class: "slider",
     min: 0.5,
@@ -160,21 +151,47 @@ var t = $("#t").slider({
 
 actualize_labels()
 create_plot()
-form.on("input change", ()=>{
+form.on("input change", () => {
     actualize_labels()
 })
 form.on("mouseup", () => {
     create_plot()
 })
-document.addEventListener("contextmenu", function(e) {e.preventDefault();});
+document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
 $("#inicial").on("click", () => {
     K_ca.slider("setValue", 0.05)
-    a.slider("setValue",200)
+    a.slider("setValue", 200)
     d.slider("setValue", 1)
     Kkinase.slider("setValue", 2)
-    stim.slider("setValue",2)
-    stim_slider.slider("setValue",[500,700])
-    t.slider("setValue",10)
+    stim.slider("setValue", 2)
+    stim_slider.slider("setValue", [500, 700])
+    t.slider("setValue", 10)
     actualize_labels()
     create_plot()
+})
+
+$("#save_data").on("change", () => {
+    let value = $("#save_data option:selected").text()
+    if (value != "Save data as") {
+        pywebview.api.save_dialog(value).then((path) => {
+            $.ajax({
+                url: "/save_data",
+                type: "POST",
+                data: {
+                    route: path,
+                    k_ca: K_ca.val(),
+                    a: a.val(),
+                    d: d.val(),
+                    k_kinase: Kkinase.val(),
+                    stim: stim.val(),
+                    stim_range: stim_slider.val(),
+                    t: t.val()
+                }
+            }).then((res) => {
+                if (res.state == "success") {
+                    Swal.fire('Data saved!', "You saved your data in\n" + path, 'success')
+                }
+            })
+        })
+    }
 })

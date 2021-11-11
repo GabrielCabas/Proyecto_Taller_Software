@@ -44,6 +44,7 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.css"
         integrity="sha512-SZgE3m1he0aEF3tIxxnz/3mXu/u/wlMNxQSnE0Cni9j/O8Gs+TjM9tm1NX34nRQ7GiLwUEzwuE3Wv2FLz2667w=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 </head>
 
 <body>
@@ -54,16 +55,17 @@
                     aria-controls="home" aria-selected="true">Parameters</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="profile-tab" data-toggle="tab" href="#plot_tab_1" role="tab" aria-controls="profile"
-                    aria-selected="false">Calcium plot</a>
+                <a class="nav-link" id="profile-tab" data-toggle="tab" href="#plot_tab_1" role="tab"
+                    aria-controls="profile" aria-selected="false">Calcium plot</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#plot_tab_2" role="tab" aria-controls="contact"
-                    aria-selected="false">Open Probability plot</a>
+                <a class="nav-link" id="contact-tab" data-toggle="tab" href="#plot_tab_2" role="tab"
+                    aria-controls="contact" aria-selected="false">Open Probability plot</a>
             </li>
         </ul>
-        <div class="tab-content formulario" id="myTabContent">
-            <div class="tab-pane fade show active" id="parameters" role="tabpanel" aria-labelledby="home-tab">
+        <div class="tab-content " id="myTabContent">
+            <div class="tab-pane fade show active formulario" id="parameters" role="tabpanel"
+                aria-labelledby="home-tab">
                 <h4>Parameters</h4>
                 <div class="d-flex flex-row">
                     <label for="K_ca" class="form-label w-25">\(K_{ca}\) = <span id="label_Kca"></span> \(\mu
@@ -78,11 +80,6 @@
                     <label for="d" class="form-label w-25">d = <span id="label_d"></span> \(s^{-1}\)</label>
                     <input id="d" type="text" />
                 </div>
-<!--                 <div class="d-flex flex-row">
-                    <label for="g_cac_dyn" class="form-label w-25">\(g_{Co}\) = <span id="label_g_cac_dyn"></span>
-                        \(mV^{-1}\)</label>
-                    <input id="g_cac_dyn" type="text" />
-                </div> -->
                 <div class="d-flex flex-row">
                     <label for="K_kinase" class="form-label w-25">\(K_{kinase}\) = <span id="label_Kkinase"></span>
                         \(\mu
@@ -104,7 +101,7 @@
                     <input id="t" type="text" />
                 </div>
                 <div class="d-flex flex-row-reverse">
-                    <button type="button" id="parameters_button" class="btn btn-primary m-2"> <span
+                    <button type="button" id="parameters_button" class="btn btn-outline-dark m-2"> <span
                             id="label_button_parameters">Show fixed parameters</button>
                 </div>
                 <div id="fixed_parameters">
@@ -131,7 +128,8 @@
                     </div>
                 </div>
                 <div class="d-flex flex-row-reverse">
-                    <button type="button" id="info_button" class="btn btn-primary m-2"> <span id="label_button">Show
+                    <button type="button" id="info_button" class="btn btn-outline-dark m-2 w-20"> <span
+                            id="label_button">Show
                         </span>\(f(t)\) </button>
                 </div>
                 <div id="info">
@@ -154,19 +152,36 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-primary" id="inicial">Use initial values</button>
+                <div class="d-flex flex-row-reverse">
+                    <button type="button" class="btn btn-outline-dark m-2 w-20" id="inicial">Use initial values</button>
+                </div>
+                <div class="d-flex flex-row-reverse" id="save_data">
+                    <select class="form-select w-20 m-2">
+                        <option selected>Save data as</option>
+                        <option value="1">.xlsx</option>
+                        <option value="2">.csv</option>
+                        <option value="3">.tsv</option>
+                    </select>
+                </div>
             </div>
             <div class="tab-pane fade h-80" id="plot_tab_1" role="tabpanel" aria-labelledby="profile-tab">
                 <h4>Calcium cytosol concentration vs time</h4>
                 <div id='plot'></div>
+                <div class="d-flex flex-row-reverse">
+                    <button type="button" class="btn btn-outline-dark m-2" id="download_plot_1">Save plot</button>
+                </div>
             </div>
             <div class="tab-pane fade h-80" id="plot_tab_2" role="tabpanel" aria-labelledby="contact-tab">
                 <h4>Open Probability vs time</h4>
                 <div id='plot2'></div>
+                <div class="d-flex flex-row-reverse">
+                    <button type="button" class="btn btn-outline-dark m-2" id="download_plot_2">Save plot</button>
+                </div>
             </div>
         </div>
     </div>
 </body>
 <script src='static/js/main.js'></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </html>
