@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, jsonify, make_response
 from model import model
 import pandas as pd
+from PIL import Image
+from io import BytesIO
+import re, base64
 server = Flask(__name__, template_folder="./", static_folder="static")
 system = model()
 @server.route('/', methods=["GET", "POST"])
@@ -61,6 +64,17 @@ def save_data():
                             "stim_t1": stim_t1, "stim_t2": stim_t2, "tf": tf},ignore_index=True)
         parameters_df.to_excel(writer, sheet_name="parameters")
         writer.save()
+    return make_response(jsonify({"state": "success"}))
+
+@server.route("/send_image", methods=["GET", "POST"])
+def send_image():
+    url = request.form["url"]
+    path = request.form["route"]
+    base64_data = re.sub('^data:image/.+;base64,', '', url)
+    byte_data = base64.b64decode(base64_data)
+    image_data = BytesIO(byte_data)
+    img = Image.open(image_data)
+    img.save(path, "PNG")
     return make_response(jsonify({"state": "success"}))
 
 if __name__ == '__main__':

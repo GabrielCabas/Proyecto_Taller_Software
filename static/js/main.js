@@ -7,7 +7,8 @@ actualize_labels = () => {
     $("#label_stim_range").text(stim_slider.val().replace(",", " - "))
     $("#label_t").text(t.val())
 }
-
+var plot1 = undefined
+var plot2 = undefined
 create_plot = () => {
     $.ajax({
         url: "/",
@@ -37,7 +38,7 @@ create_plot = () => {
             xaxis: { title: '$time\\;(s)$' }
         };
         let config = {
-            //displayModeBar: false,
+            displayModeBar: false,
         };
         var trace1 = {};
         if (data.state == "success") {
@@ -59,12 +60,12 @@ create_plot = () => {
                 hovertemplate: `Probability: %{y:.4f} <br>Time: %{x:.3f} s <extra></extra>`
             }
         }
-        Plotly.react('plot', {
+        plot1 = Plotly.react('plot', {
             data: [trace1],
             layout: layout1,
             config: config
         })
-        Plotly.react('plot2', {
+        plot2 = Plotly.react('plot2', {
             data: [trace2],
             layout: layout2,
             config: config
@@ -172,8 +173,9 @@ $("#inicial").on("click", () => {
 
 $("#save_data").on("change", () => {
     let value = $("#save_data option:selected").text()
+    let name = "data"
     if (value != "Save data as") {
-        pywebview.api.save_dialog(value).then((path) => {
+        pywebview.api.save_dialog(name, value).then((path) => {
             $.ajax({
                 url: "/save_data",
                 type: "POST",
@@ -195,3 +197,49 @@ $("#save_data").on("change", () => {
         })
     }
 })
+$("#download_plot_1").on("click", ()=>{
+    let value = ".png"
+    let name = "image"
+    pywebview.api.save_dialog(name, value).then((path) => {
+        plot1.then((gd) => {
+            Plotly.toImage(gd, {height:700,width:1050}).then((url)=>{
+                $.ajax({
+                    url: "/send_image",
+                    type: "POST",
+                    data: {
+                        route: path,
+                        url: url
+                    }
+                }).then((res) => {
+                    if (res.state == "success") {
+                        Swal.fire('Image saved!', "You saved your image in\n" + path, 'success')
+                    }
+                })
+            })
+        })
+    })
+})
+
+$("#download_plot_2").on("click", ()=>{
+    value = ".png"
+    name = "image"
+    pywebview.api.save_dialog(name, value).then((path) => {
+        plot2.then((gd) => {
+            Plotly.toImage(gd, {height:700,width:1050}).then((url)=>{
+                $.ajax({
+                    url: "/send_image",
+                    type: "POST",
+                    data: {
+                        route: path,
+                        url: url
+                    }
+                }).then((res) => {
+                    if (res.state == "success") {
+                        Swal.fire('Image saved!', "You saved your image in\n" + path, 'success')
+                    }
+                })
+            })
+        })
+    })
+})
+
