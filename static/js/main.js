@@ -26,16 +26,12 @@ create_plot = () => {
         let layout1 = {
             autosize: true,
             height: 500,
-            width: 1050,
-            yaxis: { title: '$[Ca^{+2}]_{cyt}\\;(\\mu M)$' },
-            xaxis: { title: '$time\\;(s)$' }
+            width: 1050
         };
         let layout2 = {
             autosize: true,
             height: 500,
-            width: 1050,
-            yaxis: { title: '$P(Open)$' },
-            xaxis: { title: '$time\\;(s)$' }
+            width: 1050
         };
         let config = {
             displayModeBar: false,
@@ -149,13 +145,12 @@ var t = $("#t").slider({
     step: 1,
     value: 10
 })
-
 actualize_labels()
-create_plot()
+//create_plot()
 form.on("input change", () => {
     actualize_labels()
 })
-form.on("mouseup", () => {
+$(".nav").on("click", () => {
     create_plot()
 })
 document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
@@ -242,4 +237,3 @@ $("#download_plot_2").on("click", ()=>{
         })
     })
 })
-
